@@ -98,6 +98,7 @@ bool GroupBulkRead::addParam(uint8_t id, uint16_t start_address, uint16_t data_l
   length_list_[id]    = data_length;
   address_list_[id]   = start_address;
   data_list_[id]      = new uint8_t[data_length];
+  result_list_[id] = COMM_UNKNOWN;
 
   is_param_changed_   = true;
   return true;
@@ -110,6 +111,7 @@ void GroupBulkRead::removeParam(uint8_t id)
     return;
 
   id_list_.erase(it);
+  result_list_.erase(id);
   address_list_.erase(id);
   length_list_.erase(id);
   delete[] data_list_[id];
@@ -127,6 +129,7 @@ void GroupBulkRead::clearParam()
     delete[] data_list_[id_list_[i]];
 
   id_list_.clear();
+  result_list_.clear();
   address_list_.clear();
   length_list_.clear();
   data_list_.clear();
@@ -155,8 +158,15 @@ int GroupBulkRead::txPacket()
 
 int GroupBulkRead::rxPacket()
 {
+  CommResult err;
+  rxPacket(err);
+  return err.code;
+}
+
+void GroupBulkRead::rxPacket(CommResult &result)
+{
   int cnt            = id_list_.size();
-  int result          = COMM_RX_FAIL;
+  result.code = COMM_RX_FAIL;
 
   last_result_ = false;
 
@@ -165,20 +175,20 @@ int GroupBulkRead::rxPacket()
 
   for (int i = 0; i < cnt; i++)
   {
-    uint8_t id = id_list_[i];
-
-    result = ph_->readRx(port_, length_list_[id], data_list_[id]);
-    if (result != COMM_SUCCESS)
+    result.id = id_list_[i];;
+    result.code = ph_->readRx(port_, length_list_[result.id], data_list_[result.id]);
+    result_list_[id] = result.code;
+    if (result.code != COMM_SUCCESS)
     {
-      fprintf(stderr, "[GroupBulkRead::rxPacket] ID %d result : %d !!!!!!!!!!\n", id, result);
-      return result;
+      //fprintf(stderr, "[GroupBulkRead::rxPacket] ID %d result : %d !!!!!!!!!!\n", id, result);
+      return;
     }
   }
 
-  if (result == COMM_SUCCESS)
+  if (result.code == COMM_SUCCESS)
     last_result_ = true;
 
-  return result;
+  return;
 }
 
 int GroupBulkRead::txRxPacket()
@@ -229,4 +239,8 @@ uint32_t GroupBulkRead::getData(uint8_t id, uint16_t address, uint16_t data_leng
     default:
       return 0;
   }
+}
+
+int GroupBulkRead::getLastResult(uint8_t id) {
+  return result_list_[id];
 }
