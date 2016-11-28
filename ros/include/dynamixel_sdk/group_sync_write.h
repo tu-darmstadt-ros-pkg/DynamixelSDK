@@ -65,6 +65,7 @@ class WINDECLSPEC GroupSyncWrite
 
   PortHandler     *getPortHandler()   { return port_; }
   PacketHandler   *getPacketHandler() { return ph_; }
+  uint16_t         getAddress()   { return start_address_; }
 
   bool    addParam    (uint8_t id, uint8_t *data);
   void    removeParam (uint8_t id);
