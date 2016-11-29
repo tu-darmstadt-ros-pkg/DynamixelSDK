@@ -42,6 +42,11 @@
 namespace dynamixel
 {
 
+struct CommResult {
+  uint8_t id;
+  int code;
+};
+
 class WINDECLSPEC GroupBulkRead
 {
  private:
@@ -49,6 +54,7 @@ class WINDECLSPEC GroupBulkRead
   PacketHandler  *ph_;
 
   std::vector<uint8_t>            id_list_;
+  std::map<uint8_t, int>          result_list_;   // <id, result code>
   std::map<uint8_t, uint16_t>     address_list_;  // <id, start_address>
   std::map<uint8_t, uint16_t>     length_list_;   // <id, data_length>
   std::map<uint8_t, uint8_t *>    data_list_;     // <id, data>
@@ -73,10 +79,12 @@ class WINDECLSPEC GroupBulkRead
 
   int     txPacket();
   int     rxPacket();
+  void    rxPacket(CommResult& result);
   int     txRxPacket();
 
   bool        isAvailable (uint8_t id, uint16_t address, uint16_t data_length);
   uint32_t    getData     (uint8_t id, uint16_t address, uint16_t data_length);
+  int         getLastResult(uint8_t id);
 };
 
 }

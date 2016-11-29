@@ -65,8 +65,6 @@
 #define INST_BULK_WRITE         147     // 0x93
 
 // Communication Result
-#define COMM_UNKNOWN       -1       // no communication attempt was made yet
-
 #define COMM_SUCCESS        0       // tx or rx packet communication success
 #define COMM_PORT_BUSY      -1000   // Port is busy (in use)
 #define COMM_TX_FAIL        -1001   // Failed transmit instruction packet
