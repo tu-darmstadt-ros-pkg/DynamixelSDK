@@ -35,7 +35,6 @@
 #endif
 
 #include <stdio.h>
-#include <iostream>
 #include <string.h>
 #include <stdlib.h>
 #include "dynamixel_sdk/protocol2_packet_handler.h"
@@ -810,12 +809,6 @@ int Protocol2PacketHandler::writeTxOnly(PortHandler *port, uint8_t id, uint16_t 
 
 int Protocol2PacketHandler::writeTxRx(PortHandler *port, uint8_t id, uint16_t address, uint16_t length, uint8_t *data, uint8_t *error)
 {
-  if (id == 34) { // head_lidar_spinning_joint
-    if (address >= 30 && address <= 35) { // goal_position, goal_velocity, goal_torque
-      std::cout << "head_lidar_spinning_joint: Setting address " << address << " to " << DXL_MAKEWORD(data[0], data[1]) << std::endl;
-    }
-  }
-
   int result                  = COMM_TX_FAIL;
 
   uint8_t *txpacket           = (uint8_t *)malloc(length + 12);
@@ -1035,3 +1028,4 @@ int Protocol2PacketHandler::bulkWriteTxOnly(PortHandler *port, uint8_t *param, u
   //delete[] txpacket;
   return result;
 }
+
