@@ -42,11 +42,6 @@
 namespace dynamixel
 {
 
-struct CommResult {
-  uint8_t id;
-  int code;
-};
-
 class WINDECLSPEC GroupBulkRead
 {
  private:
@@ -79,7 +74,6 @@ class WINDECLSPEC GroupBulkRead
 
   int     txPacket();
   int     rxPacket();
-  void    rxPacket(CommResult& result);
   int     txRxPacket();
 
   bool        isAvailable (uint8_t id, uint16_t address, uint16_t data_length);

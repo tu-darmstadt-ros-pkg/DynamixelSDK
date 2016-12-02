@@ -163,33 +163,29 @@ int GroupBulkRead::rxPacket()
   return err.code;
 }
 
-void GroupBulkRead::rxPacket(CommResult &result)
+int GroupBulkRead::rxPacket()
 {
   int cnt            = id_list_.size();
-  result.code = COMM_RX_FAIL;
+  int result          = COMM_RX_FAIL;
 
   last_result_ = false;
 
   if (cnt == 0)
-    result.code = COMM_NOT_AVAILABLE;
-    return;
+    return COMM_NOT_AVAILABLE;
 
   for (int i = 0; i < cnt; i++)
   {
-    result.id = id_list_[i];;
-    result.code = ph_->readRx(port_, length_list_[result.id], data_list_[result.id]);
-    result_list_[result.id] = result.code;
-    if (result.code != COMM_SUCCESS)
-    {
-      //fprintf(stderr, "[GroupBulkRead::rxPacket] ID %d result : %d !!!!!!!!!!\n", id, result);
-      return;
-    }
+    uint8_t id = id_list_[i];
+
+    result = ph_->readRx(port_, length_list_[id], data_list_[id]);
+    if (result != COMM_SUCCESS)
+      return result;
   }
 
-  if (result.code == COMM_SUCCESS)
+  if (result == COMM_SUCCESS)
     last_result_ = true;
 
-  return;
+  return result;
 }
 
 int GroupBulkRead::txRxPacket()
