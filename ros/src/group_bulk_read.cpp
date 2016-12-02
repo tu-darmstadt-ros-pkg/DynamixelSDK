@@ -158,13 +158,6 @@ int GroupBulkRead::txPacket()
 
 int GroupBulkRead::rxPacket()
 {
-  CommResult err;
-  rxPacket(err);
-  return err.code;
-}
-
-int GroupBulkRead::rxPacket()
-{
   int cnt            = id_list_.size();
   int result          = COMM_RX_FAIL;
 
