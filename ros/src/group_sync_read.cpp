@@ -116,7 +116,7 @@ int GroupSyncRead::txPacket()
   if (ph_->getProtocolVersion() == 1.0 || id_list_.size() == 0)
     return COMM_NOT_AVAILABLE;
 
-  if (is_param_changed_ == true)
+  if (is_param_changed_ == true || param_ == 0)
     makeParam();
 
   return ph_->syncReadTx(port_, start_address_, data_length_, param_, (uint16_t)id_list_.size() * 1);
@@ -139,7 +139,7 @@ int GroupSyncRead::rxPacket()
   {
     uint8_t id = id_list_[i];
 
-    result = ph_->readRx(port_, data_length_, data_list_[id]);
+    result = ph_->readRx(port_, id, data_length_, data_list_[id]);
     if (result != COMM_SUCCESS)
       return result;
   }

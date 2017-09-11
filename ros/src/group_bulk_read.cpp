@@ -140,7 +140,7 @@ int GroupBulkRead::txPacket()
   if (id_list_.size() == 0)
     return COMM_NOT_AVAILABLE;
 
-  if (is_param_changed_ == true)
+  if (is_param_changed_ == true || param_ == 0)
     makeParam();
 
   if (ph_->getProtocolVersion() == 1.0)
@@ -167,7 +167,7 @@ int GroupBulkRead::rxPacket()
   {
     uint8_t id = id_list_[i];
 
-    result = ph_->readRx(port_, length_list_[id], data_list_[id]);
+    result = ph_->readRx(port_, id, length_list_[id], data_list_[id]);
     if (result != COMM_SUCCESS)
       return result;
   }
