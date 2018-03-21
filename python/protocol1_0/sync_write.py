@@ -2,33 +2,19 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-# Copyright (c) 2016, ROBOTIS CO., LTD.
-# All rights reserved.
+# Copyright 2017 ROBOTIS CO., LTD.
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-#
-# * Neither the name of ROBOTIS nor the names of its
-#   contributors may be used to endorse or promote products derived from
-#   this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 ################################################################################
 
 # Author: Ryu Woon Jung (Leon)
@@ -40,7 +26,7 @@
 # Available Dynamixel model on this example : All models using Protocol 1.0
 # This example is designed for using two Dynamixel MX-28, and an USB2DYNAMIXEL.
 # To use another Dynamixel model, such as X series, see their details in E-Manual(support.robotis.com) and edit below variables yourself.
-# Be sure that Dynamixel MX properties are already set as %% ID : 1 / Baudnum : 1 (Baudrate : 1000000 [1M])
+# Be sure that Dynamixel MX properties are already set as %% ID : 1 / Baudnum : 34 (Baudrate : 57600)
 #
 
 import os, ctypes
@@ -80,9 +66,9 @@ PROTOCOL_VERSION            = 1                             # See which protocol
 # Default setting
 DXL1_ID                     = 1                             # Dynamixel ID: 1
 DXL2_ID                     = 2                             # Dynamixel ID: 2
-BAUDRATE                    = 1000000
+BAUDRATE                    = 57600
 DEVICENAME                  = "/dev/ttyUSB0".encode('utf-8')# Check which port is being used on your controller
-                                                            # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0"
+                                                            # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 
 TORQUE_ENABLE               = 1                             # Value for enabling the torque
 TORQUE_DISABLE              = 0                             # Value for disabling the torque
@@ -135,19 +121,23 @@ else:
 
 # Enable Dynamixel#1 Torque
 dynamixel.write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL1_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_ENABLE)
-if dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION) != COMM_SUCCESS:
-    dynamixel.printTxRxResult(PROTOCOL_VERSION, dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION))
-elif dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION) != 0:
-    dynamixel.printRxPacketError(PROTOCOL_VERSION, dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION))
+dxl_comm_result = dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION)
+dxl_error = dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION)
+if dxl_comm_result != COMM_SUCCESS:
+    print(dynamixel.getTxRxResult(PROTOCOL_VERSION, dxl_comm_result))
+elif dxl_error != 0:
+    print(dynamixel.getRxPacketError(PROTOCOL_VERSION, dxl_error))
 else:
     print("Dynamixel#1 has been successfully connected")
 
 # Enable Dynamixel#2 Torque
 dynamixel.write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL2_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_ENABLE)
-if dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION) != COMM_SUCCESS:
-    dynamixel.printTxRxResult(PROTOCOL_VERSION, dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION))
-elif dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION) != 0:
-    dynamixel.printRxPacketError(PROTOCOL_VERSION, dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION))
+dxl_comm_result = dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION)
+dxl_error = dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION)
+if dxl_comm_result != COMM_SUCCESS:
+    print(dynamixel.getTxRxResult(PROTOCOL_VERSION, dxl_comm_result))
+elif dxl_error != 0:
+    print(dynamixel.getRxPacketError(PROTOCOL_VERSION, dxl_error))
 else:
     print("Dynamixel#2 has been successfully connected")
 
@@ -172,8 +162,9 @@ while 1:
 
     # Syncwrite goal position
     dynamixel.groupSyncWriteTxPacket(group_num)
-    if dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION) != COMM_SUCCESS:
-        dynamixel.printTxRxResult(PROTOCOL_VERSION, dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION))
+    dxl_comm_result = dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION)
+    if dxl_comm_result != COMM_SUCCESS:
+        print(dynamixel.getTxRxResult(PROTOCOL_VERSION, dxl_comm_result))
 
     # Clear syncwrite parameter storage
     dynamixel.groupSyncWriteClearParam(group_num)
@@ -181,17 +172,21 @@ while 1:
     while 1:
         # Read Dynamixel#1 present position
         dxl1_present_position = dynamixel.read2ByteTxRx(port_num, PROTOCOL_VERSION, DXL1_ID, ADDR_MX_PRESENT_POSITION)
-        if dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION) != COMM_SUCCESS:
-            dynamixel.printTxRxResult(PROTOCOL_VERSION, dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION))
-        elif dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION) != 0:
-            dynamixel.printRxPacketError(PROTOCOL_VERSION, dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION))
+        dxl_comm_result = dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION)
+        dxl_error = dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION)
+        if dxl_comm_result != COMM_SUCCESS:
+            print(dynamixel.getTxRxResult(PROTOCOL_VERSION, dxl_comm_result))
+        elif dxl_error != 0:
+            print(dynamixel.getRxPacketError(PROTOCOL_VERSION, dxl_error))
 
         # Read Dynamixel#2 present position
         dxl2_present_position = dynamixel.read2ByteTxRx(port_num, PROTOCOL_VERSION, DXL2_ID, ADDR_MX_PRESENT_POSITION)
-        if dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION) != COMM_SUCCESS:
-            dynamixel.printTxRxResult(PROTOCOL_VERSION, dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION))
-        elif dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION) != 0:
-            dynamixel.printRxPacketError(PROTOCOL_VERSION, dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION))
+        dxl_comm_result = dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION)
+        dxl_error = dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION)
+        if dxl_comm_result != COMM_SUCCESS:
+            print(dynamixel.getTxRxResult(PROTOCOL_VERSION, dxl_comm_result))
+        elif dxl_error != 0:
+            print(dynamixel.getRxPacketError(PROTOCOL_VERSION, dxl_error))
 
         print("[ID:%03d] GoalPos:%03d  PresPos:%03d\t[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL1_ID, dxl_goal_position[index], dxl1_present_position, DXL2_ID, dxl_goal_position[index], dxl2_present_position))
 
@@ -207,17 +202,21 @@ while 1:
 
 # Disable Dynamixel#1 Torque
 dynamixel.write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL1_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_DISABLE)
-if dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION) != COMM_SUCCESS:
-    dynamixel.printTxRxResult(PROTOCOL_VERSION, dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION))
-elif dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION) != 0:
-    dynamixel.printRxPacketError(PROTOCOL_VERSION, dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION))
+dxl_comm_result = dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION)
+dxl_error = dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION)
+if dxl_comm_result != COMM_SUCCESS:
+    print(dynamixel.getTxRxResult(PROTOCOL_VERSION, dxl_comm_result))
+elif dxl_error != 0:
+    print(dynamixel.getRxPacketError(PROTOCOL_VERSION, dxl_error))
 
 # Disable Dynamixel#2 Torque
 dynamixel.write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL2_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_DISABLE)
-if dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION) != COMM_SUCCESS:
-    dynamixel.printTxRxResult(PROTOCOL_VERSION, dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION))
-elif dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION) != 0:
-    dynamixel.printRxPacketError(PROTOCOL_VERSION, dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION))
+dxl_comm_result = dynamixel.getLastTxRxResult(port_num, PROTOCOL_VERSION)
+dxl_error = dynamixel.getLastRxPacketError(port_num, PROTOCOL_VERSION)
+if dxl_comm_result != COMM_SUCCESS:
+    print(dynamixel.getTxRxResult(PROTOCOL_VERSION, dxl_comm_result))
+elif dxl_error != 0:
+    print(dynamixel.getRxPacketError(PROTOCOL_VERSION, dxl_error))
 
 # Close port
 dynamixel.closePort(port_num)
