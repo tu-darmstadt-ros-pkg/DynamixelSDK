@@ -1,31 +1,17 @@
 /*******************************************************************************
-* Copyright (c) 2016, ROBOTIS CO., LTD.
-* All rights reserved.
+* Copyright 2017 ROBOTIS CO., LTD.
 *
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* * Redistributions of source code must retain the above copyright notice, this
-*   list of conditions and the following disclaimer.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* * Redistributions in binary form must reproduce the above copyright notice,
-*   this list of conditions and the following disclaimer in the documentation
-*   and/or other materials provided with the distribution.
-*
-* * Neither the name of ROBOTIS nor the names of its
-*   contributors may be used to endorse or promote products derived from
-*   this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 *******************************************************************************/
 
 /* Author: Ryu Woon Jung (Leon) */
@@ -36,17 +22,17 @@
 //
 // Available Dynamixel model on this example : All models using Protocol 1.0 and 2.0
 // This example is tested with a Dynamixel MX-28, a Dynamixel PRO 54-200 and an USB2DYNAMIXEL
-// Be sure that properties of Dynamixel MX and PRO are already set as %% MX - ID : 1 / Baudnum : 1 (Baudrate : 1000000) , PRO - ID : 1 / Baudnum : 3 (Baudrate : 1000000)
+// Be sure that properties of Dynamixel MX and PRO are already set as %% MX - ID : 1 / Baudnum : 34 (Baudrate : 57600) , PRO - ID : 1 / Baudnum : 1 (Baudrate : 57600)
 //
 
 // Be aware that:
 // This example configures two different control tables (especially, if it uses Dynamixel and Dynamixel PRO). It may modify critical Dynamixel parameter on the control table, if Dynamixels have wrong ID.
 //
 
-#ifdef __linux__
-#include <unistd.h>
+#if defined(__linux__) || defined(__APPLE__)
 #include <fcntl.h>
 #include <termios.h>
+#define STDIN_FILENO 0
 #elif defined(_WIN32) || defined(_WIN64)
 #include <conio.h>
 #endif
@@ -72,9 +58,9 @@
 // Default setting
 #define DXL1_ID                         1                   // Dynamixel#1 ID: 1
 #define DXL2_ID                         2                   // Dynamixel#2 ID: 2
-#define BAUDRATE                        1000000
+#define BAUDRATE                        57600
 #define DEVICENAME                      "/dev/ttyUSB0"      // Check which port is being used on your controller
-                                                            // ex) Windows: "COM1"   Linux: "/dev/ttyUSB0"
+                                                            // ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 
 #define TORQUE_ENABLE                   1                   // Value for enabling the torque
 #define TORQUE_DISABLE                  0                   // Value for disabling the torque
@@ -89,7 +75,7 @@
 
 int getch()
 {
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
   struct termios oldt, newt;
   int ch;
   tcgetattr(STDIN_FILENO, &oldt);
@@ -106,7 +92,7 @@ int getch()
 
 int kbhit(void)
 {
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
   struct termios oldt, newt;
   int ch;
   int oldf;
@@ -184,11 +170,11 @@ int main()
   write1ByteTxRx(port_num, PROTOCOL_VERSION1, DXL1_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_ENABLE);
   if ((dxl_comm_result = getLastTxRxResult(port_num, PROTOCOL_VERSION1)) != COMM_SUCCESS)
   {
-    printTxRxResult(PROTOCOL_VERSION1, dxl_comm_result);
+    printf("%s\n", getTxRxResult(PROTOCOL_VERSION1, dxl_comm_result));
   }
   else if ((dxl_error = getLastRxPacketError(port_num, PROTOCOL_VERSION1)) != 0)
   {
-    printRxPacketError(PROTOCOL_VERSION1, dxl_error);
+    printf("%s\n", getRxPacketError(PROTOCOL_VERSION1, dxl_error));
   }
   else
   {
@@ -199,11 +185,11 @@ int main()
   write1ByteTxRx(port_num, PROTOCOL_VERSION2, DXL2_ID, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
   if ((dxl_comm_result = getLastTxRxResult(port_num, PROTOCOL_VERSION2)) != COMM_SUCCESS)
   {
-    printTxRxResult(PROTOCOL_VERSION2, dxl_comm_result);
+    printf("%s\n", getTxRxResult(PROTOCOL_VERSION2, dxl_comm_result));
   }
   else if ((dxl_error = getLastRxPacketError(port_num, PROTOCOL_VERSION2)) != 0)
   {
-    printRxPacketError(PROTOCOL_VERSION2, dxl_error);
+    printf("%s\n", getRxPacketError(PROTOCOL_VERSION2, dxl_error));
   }
   else
   {
@@ -220,22 +206,22 @@ int main()
     write2ByteTxRx(port_num, PROTOCOL_VERSION1, DXL1_ID, ADDR_MX_GOAL_POSITION, dxl1_goal_position[index]);
     if ((dxl_comm_result = getLastTxRxResult(port_num, PROTOCOL_VERSION1)) != COMM_SUCCESS)
     {
-      printTxRxResult(PROTOCOL_VERSION1, dxl_comm_result);
+      printf("%s\n", getTxRxResult(PROTOCOL_VERSION1, dxl_comm_result));
     }
     else if ((dxl_error = getLastRxPacketError(port_num, PROTOCOL_VERSION1)) != 0)
     {
-      printRxPacketError(PROTOCOL_VERSION1, dxl_error);
+      printf("%s\n", getRxPacketError(PROTOCOL_VERSION1, dxl_error));
     }
 
     // Write Dynamixel#2 goal position
     write4ByteTxRx(port_num, PROTOCOL_VERSION2, DXL2_ID, ADDR_PRO_GOAL_POSITION, dxl2_goal_position[index]);
     if ((dxl_comm_result = getLastTxRxResult(port_num, PROTOCOL_VERSION2)) != COMM_SUCCESS)
     {
-      printTxRxResult(PROTOCOL_VERSION2, dxl_comm_result);
+      printf("%s\n", getTxRxResult(PROTOCOL_VERSION2, dxl_comm_result));
     }
     else if ((dxl_error = getLastRxPacketError(port_num, PROTOCOL_VERSION2)) != 0)
     {
-      printRxPacketError(PROTOCOL_VERSION2, dxl_error);
+      printf("%s\n", getRxPacketError(PROTOCOL_VERSION2, dxl_error));
     }
 
     do
@@ -244,22 +230,22 @@ int main()
     	dxl1_present_position = read2ByteTxRx(port_num, PROTOCOL_VERSION1, DXL1_ID, ADDR_MX_PRESENT_POSITION);
       if ((dxl_comm_result = getLastTxRxResult(port_num, PROTOCOL_VERSION1)) != COMM_SUCCESS)
       {
-        printTxRxResult(PROTOCOL_VERSION1, dxl_comm_result);
+        printf("%s\n", getTxRxResult(PROTOCOL_VERSION1, dxl_comm_result));
       }
       else if ((dxl_error = getLastRxPacketError(port_num, PROTOCOL_VERSION1)) != 0)
       {
-        printRxPacketError(PROTOCOL_VERSION1, dxl_error);
+        printf("%s\n", getRxPacketError(PROTOCOL_VERSION1, dxl_error));
       }
 
       // Read Dynamixel#2 present position
       dxl2_present_position = read4ByteTxRx(port_num, PROTOCOL_VERSION2, DXL2_ID, ADDR_PRO_PRESENT_POSITION);
       if ((dxl_comm_result = getLastTxRxResult(port_num, PROTOCOL_VERSION2)) != COMM_SUCCESS)
       {
-        printTxRxResult(PROTOCOL_VERSION2, dxl_comm_result);
+        printf("%s\n", getTxRxResult(PROTOCOL_VERSION2, dxl_comm_result));
       }
       else if ((dxl_error = getLastRxPacketError(port_num, PROTOCOL_VERSION2)) != 0)
       {
-        printRxPacketError(PROTOCOL_VERSION2, dxl_error);
+        printf("%s\n", getRxPacketError(PROTOCOL_VERSION2, dxl_error));
       }
 
       printf("[ID:%03d] GoalPos:%03d  PresPos:%03d [ID:%03d] GoalPos:%03d  PresPos:%03d\n", DXL1_ID, dxl1_goal_position[index], dxl1_present_position, DXL2_ID, dxl2_goal_position[index], dxl2_present_position);
@@ -281,22 +267,22 @@ int main()
   write1ByteTxRx(port_num, PROTOCOL_VERSION1, DXL1_ID, ADDR_MX_TORQUE_ENABLE, TORQUE_DISABLE);
   if ((dxl_comm_result = getLastTxRxResult(port_num, PROTOCOL_VERSION1)) != COMM_SUCCESS)
   {
-    printTxRxResult(PROTOCOL_VERSION1, dxl_comm_result);
+    printf("%s\n", getTxRxResult(PROTOCOL_VERSION1, dxl_comm_result));
   }
   else if ((dxl_error = getLastRxPacketError(port_num, PROTOCOL_VERSION1)) != 0)
   {
-    printRxPacketError(PROTOCOL_VERSION1, dxl_error);
+    printf("%s\n", getRxPacketError(PROTOCOL_VERSION1, dxl_error));
   }
 
   // Disable Dynamixel#2 Torque
   write1ByteTxRx(port_num, PROTOCOL_VERSION2, DXL2_ID, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
   if ((dxl_comm_result = getLastTxRxResult(port_num, PROTOCOL_VERSION2)) != COMM_SUCCESS)
   {
-    printTxRxResult(PROTOCOL_VERSION2, dxl_comm_result);
+    printf("%s\n", getTxRxResult(PROTOCOL_VERSION2, dxl_comm_result));
   }
   else if ((dxl_error = getLastRxPacketError(port_num, PROTOCOL_VERSION2)) != 0)
   {
-    printRxPacketError(PROTOCOL_VERSION2, dxl_error);
+    printf("%s\n", getRxPacketError(PROTOCOL_VERSION2, dxl_error));
   }
 
   // Close port
