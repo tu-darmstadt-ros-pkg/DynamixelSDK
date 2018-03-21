@@ -1,50 +1,25 @@
 /*******************************************************************************
-* Copyright (c) 2016, ROBOTIS CO., LTD.
-* All rights reserved.
+* Copyright 2017 ROBOTIS CO., LTD.
 *
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* * Redistributions of source code must retain the above copyright notice, this
-*   list of conditions and the following disclaimer.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* * Redistributions in binary form must reproduce the above copyright notice,
-*   this list of conditions and the following disclaimer in the documentation
-*   and/or other materials provided with the distribution.
-*
-* * Neither the name of ROBOTIS nor the names of its
-*   contributors may be used to endorse or promote products derived from
-*   this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 *******************************************************************************/
 
 /* Author: Ryu Woon Jung (Leon) */
 
-#if defined(_WIN32) || defined(_WIN64)
-#define WINDLLEXPORT
-#endif
+#if defined(__linux__)
+#include "port_handler.h"
+#include "port_handler_linux.h"
 
-#include "dynamixel_sdk/port_handler.h"
-
-#ifdef __linux__
-#include "dynamixel_sdk_linux/port_handler_linux.h"
-#endif
-
-#if defined(_WIN32) || defined(_WIN64)
-#include "dynamixel_sdk_windows/port_handler_windows.h"
-#endif
-
-#ifdef __linux__
 int     portHandler         (const char *port_name) { return portHandlerLinux(port_name); }
 
 uint8_t openPort            (int port_num) { return openPortLinux(port_num); }
@@ -65,9 +40,37 @@ int     writePort           (int port_num, uint8_t *packet, int length) { return
 void    setPacketTimeout    (int port_num, uint16_t packet_length) { setPacketTimeoutLinux(port_num, packet_length); }
 void    setPacketTimeoutMSec(int port_num, double msec) { setPacketTimeoutMSecLinux(port_num, msec); }
 uint8_t isPacketTimeout     (int port_num) { return isPacketTimeoutLinux(port_num); }
-#endif
 
-#if defined(_WIN32) || defined(_WIN64)
+#elif defined(__APPLE__)
+#include "port_handler.h"
+#include "port_handler_mac.h"
+
+int     portHandler         (const char *port_name) { return portHandlerMac(port_name); }
+
+uint8_t openPort            (int port_num) { return openPortMac(port_num); }
+void    closePort           (int port_num) { closePortMac(port_num); }
+void    clearPort           (int port_num) { clearPortMac(port_num); }
+
+void    setPortName         (int port_num, const char *port_name) { setPortNameMac(port_num, port_name); }
+char   *getPortName         (int port_num) { return getPortNameMac(port_num); }
+
+uint8_t setBaudRate         (int port_num, const int baudrate) { return setBaudRateMac(port_num, baudrate); }
+int     getBaudRate         (int port_num) { return getBaudRateMac(port_num); }
+
+int     getBytesAvailable   (int port_num) { return getBytesAvailableMac(port_num); }
+
+int     readPort            (int port_num, uint8_t *packet, int length) { return readPortMac(port_num, packet, length); }
+int     writePort           (int port_num, uint8_t *packet, int length) { return writePortMac(port_num, packet, length); }
+
+void    setPacketTimeout    (int port_num, uint16_t packet_length) { setPacketTimeoutMac(port_num, packet_length); }
+void    setPacketTimeoutMSec(int port_num, double msec) { setPacketTimeoutMSecMac(port_num, msec); }
+uint8_t isPacketTimeout     (int port_num) { return isPacketTimeoutMac(port_num); }
+
+#elif defined(_WIN32) || defined(_WIN64)
+#define WINDLLEXPORT
+#include "port_handler.h"
+#include "port_handler_windows.h"
+
 int     portHandler         (const char *port_name) { return portHandlerWindows(port_name); }
 
 uint8_t openPort            (int port_num) { return openPortWindows(port_num); }
@@ -86,4 +89,5 @@ int     writePort           (int port_num, uint8_t *packet, int length) { return
 void    setPacketTimeout    (int port_num, uint16_t packet_length) { setPacketTimeoutWindows(port_num, packet_length); }
 void    setPacketTimeoutMSec(int port_num, double msec) { setPacketTimeoutMSecWindows(port_num, msec); }
 uint8_t isPacketTimeout     (int port_num) { return isPacketTimeoutWindows(port_num); }
+
 #endif

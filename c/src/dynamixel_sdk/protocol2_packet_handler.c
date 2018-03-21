@@ -1,43 +1,33 @@
 /*******************************************************************************
-* Copyright (c) 2016, ROBOTIS CO., LTD.
-* All rights reserved.
+* Copyright 2017 ROBOTIS CO., LTD.
 *
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* * Redistributions of source code must retain the above copyright notice, this
-*   list of conditions and the following disclaimer.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* * Redistributions in binary form must reproduce the above copyright notice,
-*   this list of conditions and the following disclaimer in the documentation
-*   and/or other materials provided with the distribution.
-*
-* * Neither the name of ROBOTIS nor the names of its
-*   contributors may be used to endorse or promote products derived from
-*   this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 *******************************************************************************/
 
 /* Author: Ryu Woon Jung (Leon) */
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(__linux__)
+#include "protocol2_packet_handler.h"
+#elif defined(__APPLE__)
+#include "protocol2_packet_handler.h"
+#elif defined(_WIN32) || defined(_WIN64)
 #define WINDLLEXPORT
+#include "protocol2_packet_handler.h"
 #endif
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "dynamixel_sdk/protocol2_packet_handler.h"
 
 #define TXPACKET_MAX_LEN    (4*1024)
 #define RXPACKET_MAX_LEN    (4*1024)
@@ -65,96 +55,91 @@
 
 #define ERRBIT_ALERT            128     //When the device has a problem, this bit is set to 1. Check "Device Status Check" value.
 
-void printTxRxResult2(int result)
+const char *getTxRxResult2(int result)
 {
   switch (result)
   {
     case COMM_SUCCESS:
-      printf("[TxRxResult] Communication success.\n");
-      break;
+      return "[TxRxResult] Communication success.";
 
     case COMM_PORT_BUSY:
-      printf("[TxRxResult] Port is in use!\n");
-      break;
+      return "[TxRxResult] Port is in use!";
 
     case COMM_TX_FAIL:
-      printf("[TxRxResult] Failed transmit instruction packet!\n");
-      break;
+      return "[TxRxResult] Failed transmit instruction packet!";
 
     case COMM_RX_FAIL:
-      printf("[TxRxResult] Failed get status packet from device!\n");
-      break;
+      return "[TxRxResult] Failed get status packet from device!";
 
     case COMM_TX_ERROR:
-      printf("[TxRxResult] Incorrect instruction packet!\n");
-      break;
+      return "[TxRxResult] Incorrect instruction packet!";
 
     case COMM_RX_WAITING:
-      printf("[TxRxResult] Now recieving status packet!\n");
-      break;
+      return "[TxRxResult] Now recieving status packet!";
 
     case COMM_RX_TIMEOUT:
-      printf("[TxRxResult] There is no status packet!\n");
-      break;
+      return "[TxRxResult] There is no status packet!";
 
     case COMM_RX_CORRUPT:
-      printf("[TxRxResult] Incorrect status packet!\n");
-      break;
+      return "[TxRxResult] Incorrect status packet!";
 
     case COMM_NOT_AVAILABLE:
-      printf("[TxRxResult] Protocol does not support This function!\n");
-      break;
+      return "[TxRxResult] Protocol does not support This function!";
 
     default:
-      break;
+      return "";
   }
 }
 
-void printRxPacketError2(uint8_t error)
+void printTxRxResult2(int result)
+{
+  printf("This function is deprecated. Use getTxRxResult instead\n");
+  printf("%s\n", getTxRxResult2(result));
+}
+
+const char *getRxPacketError2(uint8_t error)
 {
   int not_alert_error;
   if (error & ERRBIT_ALERT)
-    printf("[RxPacketError] Hardware error occurred. Check the error at Control Table (Hardware Error Status)!\n");
+    return "[RxPacketError] Hardware error occurred. Check the error at Control Table (Hardware Error Status)!";
 
   not_alert_error = error & ~ERRBIT_ALERT;
 
   switch (not_alert_error)
   {
     case 0:
-      break;
+      return "";
 
     case ERRNUM_RESULT_FAIL:
-      printf("[RxPacketError] Failed to process the instruction packet!\n");
-      break;
+      return "[RxPacketError] Failed to process the instruction packet!";
 
     case ERRNUM_INSTRUCTION:
-      printf("[RxPacketError] Undefined instruction or incorrect instruction!\n");
-      break;
+      return "[RxPacketError] Undefined instruction or incorrect instruction!";
 
     case ERRNUM_CRC:
-      printf("[RxPacketError] CRC doesn't match!\n");
-      break;
+      return "[RxPacketError] CRC doesn't match!";
 
     case ERRNUM_DATA_RANGE:
-      printf("[RxPacketError] The data value is out of range!\n");
-      break;
+      return "[RxPacketError] The data value is out of range!";
 
     case ERRNUM_DATA_LENGTH:
-      printf("[RxPacketError] The data length does not match as expected!\n");
-      break;
+      return "[RxPacketError] The data length does not match as expected!";
 
     case ERRNUM_DATA_LIMIT:
-      printf("[RxPacketError] The data value exceeds the limit value!\n");
-      break;
+      return "[RxPacketError] The data value exceeds the limit value!";
 
     case ERRNUM_ACCESS:
-      printf("[RxPacketError] Writing or Reading is not available to target address!\n");
-      break;
+      return "[RxPacketError] Writing or Reading is not available to target address!";
 
     default:
-      printf("[RxPacketError] Unknown error code!\n");
-      break;
+      return "[RxPacketError] Unknown error code!";
   }
+}
+
+void printRxPacketError2(uint8_t error)
+{
+  printf("This function is deprecated. Use getRxPacketError instead\n");
+  printf("%s\n", getRxPacketError2(error));
 }
 
 int getLastTxRxResult2(int port_num)
@@ -266,9 +251,10 @@ unsigned short updateCRC(uint16_t crc_accum, uint8_t *data_blk_ptr, uint16_t dat
 
 void addStuffing(uint8_t *packet)
 {
-  uint8_t s;
+  uint16_t s;
 
-  int i = 0, index = 0;
+  uint16_t i = 0;
+  int index = 0;
   int packet_length_in = DXL_MAKEWORD(packet[PKT_LENGTH_L], packet[PKT_LENGTH_H]);
   int packet_length_out = packet_length_in;
   uint8_t temp[TXPACKET_MAX_LEN] = { 0 };
@@ -305,7 +291,8 @@ void addStuffing(uint8_t *packet)
 
 void removeStuffing(uint8_t *packet)
 {
-  int i = 0, index = 0;
+  uint16_t i = 0;
+  int index = 0;
   int packet_length_in = DXL_MAKEWORD(packet[PKT_LENGTH_L], packet[PKT_LENGTH_H]);
   int packet_length_out = packet_length_in;
 
@@ -378,7 +365,7 @@ void txPacket2(int port_num)
 
 void rxPacket2(int port_num)
 {
-  uint8_t s;
+  uint16_t s;
   uint16_t idx;
   uint16_t rx_length = 0;
   uint16_t wait_length = 11;
@@ -565,7 +552,7 @@ uint16_t pingGetModelNum2(int port_num, uint8_t id)
 
 void broadcastPing2(int port_num)
 {
-  uint8_t s;
+  uint16_t s;
   int id;
   uint16_t idx;
   const int STATUS_LENGTH     = 14;
@@ -759,7 +746,7 @@ void readTx2(int port_num, uint8_t id, uint16_t address, uint16_t length)
 
 void readRx2(int port_num, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
   packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, RXPACKET_MAX_LEN);  //(length + 11 + (length/3));  // (length/3): consider stuffing
@@ -778,7 +765,7 @@ void readRx2(int port_num, uint16_t length)
 
 void readTxRx2(int port_num, uint8_t id, uint16_t address, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -892,7 +879,7 @@ uint32_t read4ByteTxRx2(int port_num, uint8_t id, uint16_t address)
 
 void writeTxOnly2(int port_num, uint8_t id, uint16_t address, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -916,7 +903,7 @@ void writeTxOnly2(int port_num, uint8_t id, uint16_t address, uint16_t length)
 
 void writeTxRx2(int port_num, uint8_t id, uint16_t address, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -987,7 +974,7 @@ void write4ByteTxRx2(int port_num, uint8_t id, uint16_t address, uint32_t data)
 
 void regWriteTxOnly2(int port_num, uint8_t id, uint16_t address, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -1011,7 +998,7 @@ void regWriteTxOnly2(int port_num, uint8_t id, uint16_t address, uint16_t length
 
 void regWriteTxRx2(int port_num, uint8_t id, uint16_t address, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -1035,7 +1022,7 @@ void regWriteTxRx2(int port_num, uint8_t id, uint16_t address, uint16_t length)
 
 void syncReadTx2(int port_num, uint16_t start_address, uint16_t data_length, uint16_t param_length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -1064,7 +1051,7 @@ void syncReadTx2(int port_num, uint16_t start_address, uint16_t data_length, uin
 
 void syncWriteTxOnly2(int port_num, uint16_t start_address, uint16_t data_length, uint16_t param_length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -1090,8 +1077,8 @@ void syncWriteTxOnly2(int port_num, uint16_t start_address, uint16_t data_length
 
 void bulkReadTx2(int port_num, uint16_t param_length)
 {
-  uint8_t s;
-  int i;
+  uint16_t s;
+  uint16_t i;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -1122,7 +1109,7 @@ void bulkReadTx2(int port_num, uint16_t param_length)
 
 void bulkWriteTxOnly2(int port_num, uint16_t param_length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 

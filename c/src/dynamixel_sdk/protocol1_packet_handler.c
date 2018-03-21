@@ -1,42 +1,32 @@
 /*******************************************************************************
-* Copyright (c) 2016, ROBOTIS CO., LTD.
-* All rights reserved.
+* Copyright 2017 ROBOTIS CO., LTD.
 *
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* * Redistributions of source code must retain the above copyright notice, this
-*   list of conditions and the following disclaimer.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* * Redistributions in binary form must reproduce the above copyright notice,
-*   this list of conditions and the following disclaimer in the documentation
-*   and/or other materials provided with the distribution.
-*
-* * Neither the name of ROBOTIS nor the names of its
-*   contributors may be used to endorse or promote products derived from
-*   this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 *******************************************************************************/
 
 /* Author: Ryu Woon Jung (Leon) */
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(__linux__)
+#include "protocol1_packet_handler.h"
+#elif defined(__APPLE__)
+#include "protocol1_packet_handler.h"
+#elif defined(_WIN32) || defined(_WIN64)
 #define WINDLLEXPORT
+#include "protocol1_packet_handler.h"
 #endif
 
 #include <string.h>
 #include <stdlib.h>
-#include "dynamixel_sdk/protocol1_packet_handler.h"
 
 #define TXPACKET_MAX_LEN    (250)
 #define RXPACKET_MAX_LEN    (250)
@@ -59,74 +49,78 @@
 #define ERRBIT_OVERLOAD         32      // The current load cannot be controlled by the set torque.
 #define ERRBIT_INSTRUCTION      64      // Undefined instruction or delivering the action command without the reg_write command.
 
-
-void printTxRxResult1(int result)
+const char *getTxRxResult1(int result)
 {
   switch (result)
   {
     case COMM_SUCCESS:
-      printf("[TxRxResult] Communication success.\n");
-      break;
+      return "[TxRxResult] Communication success.";
 
     case COMM_PORT_BUSY:
-      printf("[TxRxResult] Port is in use!\n");
-      break;
+      return "[TxRxResult] Port is in use!";
 
     case COMM_TX_FAIL:
-      printf("[TxRxResult] Failed transmit instruction packet!\n");
-      break;
+      return "[TxRxResult] Failed transmit instruction packet!";
 
     case COMM_RX_FAIL:
-      printf("[TxRxResult] Failed get status packet from device!\n");
-      break;
+      return "[TxRxResult] Failed get status packet from device!";
 
     case COMM_TX_ERROR:
-      printf("[TxRxResult] Incorrect instruction packet!\n");
-      break;
+      return "[TxRxResult] Incorrect instruction packet!";
 
     case COMM_RX_WAITING:
-      printf("[TxRxResult] Now recieving status packet!\n");
-      break;
+      return "[TxRxResult] Now recieving status packet!";
 
     case COMM_RX_TIMEOUT:
-      printf("[TxRxResult] There is no status packet!\n");
-      break;
+      return "[TxRxResult] There is no status packet!";
 
     case COMM_RX_CORRUPT:
-      printf("[TxRxResult] Incorrect status packet!\n");
-      break;
+      return "[TxRxResult] Incorrect status packet!";
 
     case COMM_NOT_AVAILABLE:
-      printf("[TxRxResult] Protocol does not support This function!\n");
-      break;
+      return "[TxRxResult] Protocol does not support This function!";
 
     default:
-      break;
+      return "";
   }
+}
+
+void printTxRxResult1(int result)
+{
+  printf("This function is deprecated. Use getTxRxResult instead\n");
+  printf("%s\n", getTxRxResult1(result));
+}
+
+const char *getRxPacketError1(uint8_t error)
+{
+  if (error & ERRBIT_VOLTAGE)
+    return "[RxPacketError] Input voltage error!";
+
+  if (error & ERRBIT_ANGLE)
+    return "[RxPacketError] Angle limit error!";
+
+  if (error & ERRBIT_OVERHEAT)
+    return "[RxPacketError] Overheat error!";
+
+  if (error & ERRBIT_RANGE)
+    return "[RxPacketError] Out of range error!";
+
+  if (error & ERRBIT_CHECKSUM)
+    return "[RxPacketError] Checksum error!";
+
+  if (error & ERRBIT_OVERLOAD)
+    return "[RxPacketError] Overload error!";
+
+  if (error & ERRBIT_INSTRUCTION)
+    return "[RxPacketError] Instruction code error!";
+
+  return "";
 }
 
 void printRxPacketError1(uint8_t error)
 {
-  if (error & ERRBIT_VOLTAGE)
-    printf("[RxPacketError] Input voltage error!\n");
-
-  if (error & ERRBIT_ANGLE)
-    printf("[RxPacketError] Angle limit error!\n");
-
-  if (error & ERRBIT_OVERHEAT)
-    printf("[RxPacketError] Overheat error!\n");
-
-  if (error & ERRBIT_RANGE)
-    printf("[RxPacketError] Out of range error!\n");
-
-  if (error & ERRBIT_CHECKSUM)
-    printf("[RxPacketError] Checksum error!\n");
-
-  if (error & ERRBIT_OVERLOAD)
-    printf("[RxPacketError] Overload error!\n");
-
-  if (error & ERRBIT_INSTRUCTION)
-    printf("[RxPacketError] Instruction code error!\n");
+  printf("This function is deprecated. Use getRxPacketError instead\n");
+  printf("%s\n", getRxPacketError1(error));
 }
 
 int getLastTxRxResult1(int port_num)
@@ -177,7 +171,7 @@ uint32_t getDataRead1(int port_num, uint16_t data_length, uint16_t data_pos)
 
 void txPacket1(int port_num)
 {
-  int idx;
+  uint16_t idx;
 
   uint8_t checksum = 0;
   uint8_t total_packet_length = packetData[port_num].tx_packet[PKT_LENGTH] + 4; // 4: HEADER0 HEADER1 ID LENGTH
@@ -224,7 +218,7 @@ void txPacket1(int port_num)
 
 void rxPacket1(int port_num)
 {
-  uint8_t idx, s;
+  uint16_t idx, s;
   int i;
   uint8_t checksum;
   uint8_t rx_length;
@@ -254,7 +248,7 @@ void rxPacket1(int port_num)
       {
         if (packetData[port_num].rx_packet[PKT_ID] > 0xFD ||                   // unavailable ID
             packetData[port_num].rx_packet[PKT_LENGTH] > RXPACKET_MAX_LEN ||   // unavailable Length
-            packetData[port_num].rx_packet[PKT_ERROR] >= 0x64)                 // unavailable Error
+            packetData[port_num].rx_packet[PKT_ERROR] > 0x7F)                  // unavailable Error
         {
           // remove the first byte in the packet
           for (s = 0; s < rx_length - 1; s++)
@@ -475,7 +469,7 @@ void readTx1(int port_num, uint8_t id, uint16_t address, uint16_t length)
 
 void readRx1(int port_num, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -495,7 +489,7 @@ void readRx1(int port_num, uint16_t length)
 
 void readTxRx1(int port_num, uint8_t id, uint16_t address, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, 8);
@@ -606,7 +600,7 @@ uint32_t read4ByteTxRx1(int port_num, uint8_t id, uint16_t address)
 
 void writeTxOnly1(int port_num, uint8_t id, uint16_t address, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -628,7 +622,7 @@ void writeTxOnly1(int port_num, uint8_t id, uint16_t address, uint16_t length)
 
 void writeTxRx1(int port_num, uint8_t id, uint16_t address, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -697,7 +691,7 @@ void write4ByteTxRx1(int port_num, uint8_t id, uint16_t address, uint32_t data)
 
 void regWriteTxOnly1(int port_num, uint8_t id, uint16_t address, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -713,13 +707,14 @@ void regWriteTxOnly1(int port_num, uint8_t id, uint16_t address, uint16_t length
     packetData[port_num].tx_packet[PKT_PARAMETER0 + 1 + s] = packetData[port_num].data_write[s];
   }
 
-   txPacket1(port_num);
+  txPacket1(port_num);
+  
   g_is_using[port_num] = False;
 }
 
 void regWriteTxRx1(int port_num, uint8_t id, uint16_t address, uint16_t length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -748,7 +743,7 @@ void syncReadTx1(int port_num, uint16_t start_address, uint16_t data_length, uin
 
 void syncWriteTxOnly1(int port_num, uint16_t start_address, uint16_t data_length, uint16_t param_length)
 {
-  uint8_t s;
+  uint16_t s;
 
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
@@ -770,9 +765,9 @@ void syncWriteTxOnly1(int port_num, uint16_t start_address, uint16_t data_length
 
 void bulkReadTx1(int port_num, uint16_t param_length)
 {
-  uint8_t s;
-
+  uint16_t s;
   int i;
+
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, param_length + 7);  // 7: HEADER0 HEADER1 ID LEN INST 0x00 ... CHKSUM
