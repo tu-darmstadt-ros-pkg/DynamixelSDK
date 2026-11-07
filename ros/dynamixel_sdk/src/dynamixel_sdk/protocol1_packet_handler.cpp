@@ -188,7 +188,7 @@ int Protocol1PacketHandler::rxPacket(PortHandler *port, uint8_t *rxpacket, bool 
       if (idx == 0)   // found at the beginning of the packet
       {
         if (rxpacket[PKT_ID] > 0xFD ||                  // unavailable ID
-            rxpacket[PKT_LENGTH] > RXPACKET_MAX_LEN ||  // unavailable Length
+            rxpacket[PKT_LENGTH] + PKT_LENGTH + 1 > RXPACKET_MAX_LEN ||  // unavailable Length
             rxpacket[PKT_ERROR] > 0x7F)                 // unavailable Error
         {
             // remove the first byte in the packet
@@ -330,7 +330,7 @@ int Protocol1PacketHandler::ping(PortHandler *port, uint8_t id, uint16_t *model_
   int result                 = COMM_TX_FAIL;
 
   uint8_t txpacket[6]         = {0};
-  uint8_t rxpacket[6]         = {0};
+  uint8_t rxpacket[RXPACKET_MAX_LEN] = {0};
 
   if (id >= BROADCAST_ID)
     return COMM_NOT_AVAILABLE;
@@ -384,7 +384,7 @@ int Protocol1PacketHandler::clearError(PortHandler *port, uint8_t id, uint8_t *e
 int Protocol1PacketHandler::factoryReset(PortHandler *port, uint8_t id, uint8_t option, uint8_t *error)
 {
   uint8_t txpacket[6]         = {0};
-  uint8_t rxpacket[6]         = {0};
+  uint8_t rxpacket[RXPACKET_MAX_LEN] = {0};
 
   txpacket[PKT_ID]            = id;
   txpacket[PKT_LENGTH]        = 2;
@@ -585,7 +585,7 @@ int Protocol1PacketHandler::writeTxRx(PortHandler *port, uint8_t id, uint16_t ad
 
   uint8_t *txpacket           = (uint8_t *)malloc(length+7); //#6->7
   //uint8_t *txpacket           = new uint8_t[length+7];
-  uint8_t rxpacket[6]         = {0};
+  uint8_t rxpacket[RXPACKET_MAX_LEN] = {0};
 
   if (txpacket == NULL)
     return result;
@@ -672,7 +672,7 @@ int Protocol1PacketHandler::regWriteTxRx(PortHandler *port, uint8_t id, uint16_t
 
   uint8_t *txpacket           = (uint8_t *)malloc(length+6);
   //uint8_t *txpacket           = new uint8_t[length+6];
-  uint8_t rxpacket[6]         = {0};
+  uint8_t rxpacket[RXPACKET_MAX_LEN] = {0};
 
   if (txpacket == NULL)
     return result;
