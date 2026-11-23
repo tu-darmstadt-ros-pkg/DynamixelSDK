@@ -237,16 +237,28 @@ bool PortHandlerLinux::setupPort(int cflag_baud)
 
   bzero(&newtio, sizeof(newtio)); // clear struct for new port settings
 
-  newtio.c_cflag = cflag_baud | CS8 | CLOCAL | CREAD;
+  newtio.c_cflag = CS8 | CLOCAL | CREAD;
   newtio.c_iflag = IGNPAR;
   newtio.c_oflag      = 0;
   newtio.c_lflag      = 0;
   newtio.c_cc[VTIME]  = 0;
   newtio.c_cc[VMIN]   = 0;
 
+  if (cfsetispeed(&newtio, (speed_t)cflag_baud) != 0 || cfsetospeed(&newtio, (speed_t)cflag_baud) != 0)
+  {
+    printf("[PortHandlerLinux::SetupPort] Error setting baud rate!\n");
+    closePort();
+    return false;
+  }
+
   // clean the buffer and activate the settings for the port
   tcflush(socket_fd_, TCIFLUSH);
-  tcsetattr(socket_fd_, TCSANOW, &newtio);
+  if (tcsetattr(socket_fd_, TCSANOW, &newtio) != 0)
+  {
+    printf("[PortHandlerLinux::SetupPort] Error applying serial port settings!\n");
+    closePort();
+    return false;
+  }
 
   tx_time_per_byte = (1000.0 / (double)baudrate_) * 10.0;
   return true;
