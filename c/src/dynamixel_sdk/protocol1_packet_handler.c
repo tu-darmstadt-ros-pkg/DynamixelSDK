@@ -242,7 +242,7 @@ void rxPacket1(int port_num)
       if (idx == 0)   // found at the beginning of the packet
       {
         if (packetData[port_num].rx_packet[PKT_ID] > 0xFD ||                   // unavailable ID
-            packetData[port_num].rx_packet[PKT_LENGTH] > RXPACKET_MAX_LEN ||   // unavailable Length
+            packetData[port_num].rx_packet[PKT_LENGTH] + PKT_LENGTH + 1 > RXPACKET_MAX_LEN ||   // unavailable Length
             packetData[port_num].rx_packet[PKT_ERROR] > 0x7F)                  // unavailable Error
         {
           // remove the first byte in the packet
@@ -376,7 +376,7 @@ uint16_t pingGetModelNum1(int port_num, uint8_t id)
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, 6);
-  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, 6);
+  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, RXPACKET_MAX_LEN);
 
   if (id >= BROADCAST_ID)
   {
@@ -433,7 +433,7 @@ void clearMultiTurn1(int port_num, uint8_t id)
 void factoryReset1(int port_num, uint8_t id, uint8_t option)
 {
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, 6);
-  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, 6);
+  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, RXPACKET_MAX_LEN);
 
   packetData[port_num].tx_packet[PKT_ID] = id;
   packetData[port_num].tx_packet[PKT_LENGTH] = 2;
@@ -627,7 +627,7 @@ void writeTxRx1(int port_num, uint8_t id, uint16_t address, uint16_t length)
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, length + 7);
-  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, 6);
+  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, RXPACKET_MAX_LEN);
 
   packetData[port_num].tx_packet[PKT_ID] = id;
   packetData[port_num].tx_packet[PKT_LENGTH] = length + 3;
@@ -719,7 +719,7 @@ void regWriteTxRx1(int port_num, uint8_t id, uint16_t address, uint16_t length)
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, length + 6);
-  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, 6);
+  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, RXPACKET_MAX_LEN);
 
   packetData[port_num].tx_packet[PKT_ID] = id;
   packetData[port_num].tx_packet[PKT_LENGTH] = length + 3;

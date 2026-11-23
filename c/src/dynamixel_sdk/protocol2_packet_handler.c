@@ -405,7 +405,7 @@ void rxPacket2(int port_num)
       {
         if (packetData[port_num].rx_packet[PKT_RESERVED] != 0x00 ||
           packetData[port_num].rx_packet[PKT_ID] > 0xFC ||
-          DXL_MAKEWORD(packetData[port_num].rx_packet[PKT_LENGTH_L], packetData[port_num].rx_packet[PKT_LENGTH_H]) > RXPACKET_MAX_LEN ||
+          DXL_MAKEWORD(packetData[port_num].rx_packet[PKT_LENGTH_L], packetData[port_num].rx_packet[PKT_LENGTH_H]) + PKT_LENGTH_H + 1 > RXPACKET_MAX_LEN ||
           packetData[port_num].rx_packet[PKT_INSTRUCTION] != 0x55)
         {
           // remove the first byte in the packet
@@ -549,7 +549,7 @@ uint16_t pingGetModelNum2(int port_num, uint8_t id)
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, 10);
-  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, 14);
+  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, RXPACKET_MAX_LEN);
   if (packetData[port_num].tx_packet == NULL || packetData[port_num].rx_packet == NULL)
   {
     printf("[PingGetModeNum] memory allocation failed.. \n");
@@ -742,7 +742,7 @@ void action2(int port_num, uint8_t id)
 void reboot2(int port_num, uint8_t id)
 {
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, 10);
-  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, 11);
+  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, RXPACKET_MAX_LEN);
   if (packetData[port_num].tx_packet == NULL || packetData[port_num].rx_packet == NULL)
   {
     printf("[Reboot] memory allocation failed..\n");
@@ -760,7 +760,7 @@ void reboot2(int port_num, uint8_t id)
 void clearMultiTurn2(int port_num, uint8_t id)
 {
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, 15);
-  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, 11);
+  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, RXPACKET_MAX_LEN);
   if (packetData[port_num].tx_packet == NULL || packetData[port_num].rx_packet == NULL)
   {
     printf("[ClearMultiTurn] memory allocation failed..\n");
@@ -783,7 +783,7 @@ void clearMultiTurn2(int port_num, uint8_t id)
 void factoryReset2(int port_num, uint8_t id, uint8_t option)
 {
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, 11);
-  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, 11);
+  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, RXPACKET_MAX_LEN);
   if (packetData[port_num].tx_packet == NULL || packetData[port_num].rx_packet == NULL)
   {
     printf("[FactoryReset] memory allocation failed..\n");
@@ -1043,7 +1043,7 @@ void writeTxRx2(int port_num, uint8_t id, uint16_t address, uint16_t length)
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, length + 12);
-  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, 11);
+  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, RXPACKET_MAX_LEN);
   if (packetData[port_num].tx_packet == NULL || packetData[port_num].rx_packet == NULL)
   {
     printf("[WriteTxRx] memory allocation failed..\n");
@@ -1178,7 +1178,7 @@ void regWriteTxRx2(int port_num, uint8_t id, uint16_t address, uint16_t length)
   packetData[port_num].communication_result = COMM_TX_FAIL;
 
   packetData[port_num].tx_packet = (uint8_t *)realloc(packetData[port_num].tx_packet, length + 12);
-  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, 11);
+  packetData[port_num].rx_packet = (uint8_t *)realloc(packetData[port_num].rx_packet, RXPACKET_MAX_LEN);
   if (packetData[port_num].tx_packet == NULL || packetData[port_num].rx_packet == NULL)
   {
     printf("[RegWriteTxRx] memory allocation failed..\n");
